@@ -1,0 +1,463 @@
+{
+  "id": "e53bb475-f1ad-4328-9d58-c8e42aac58b2",
+  "prevId": "3524e3bb-3708-4fa2-a0b6-005ae3d82c71",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.championships": {
+      "name": "championships",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "championship_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "weight": {
+          "name": "weight",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "emblem": {
+          "name": "emblem",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "clubs_count": {
+          "name": "clubs_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "championships_name_idx": {
+          "name": "championships_name_idx",
+          "columns": [
+            {
+              "expression": "lower(\"name\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "championships_weight_check": {
+          "name": "championships_weight_check",
+          "value": "\"championships\".\"weight\" between 1 and 7"
+        },
+        "championships_clubs_count_check": {
+          "name": "championships_clubs_count_check",
+          "value": "\"championships\".\"clubs_count\" > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.club_championships": {
+      "name": "club_championships",
+      "schema": "",
+      "columns": {
+        "club_id": {
+          "name": "club_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "championship_id": {
+          "name": "championship_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "club_championships_club_id_clubs_id_fk": {
+          "name": "club_championships_club_id_clubs_id_fk",
+          "tableFrom": "club_championships",
+          "tableTo": "clubs",
+          "columnsFrom": [
+            "club_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "club_championships_championship_id_championships_id_fk": {
+          "name": "club_championships_championship_id_championships_id_fk",
+          "tableFrom": "club_championships",
+          "tableTo": "championships",
+          "columnsFrom": [
+            "championship_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "club_championships_club_id_championship_id_pk": {
+          "name": "club_championships_club_id_championship_id_pk",
+          "columns": [
+            "club_id",
+            "championship_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.club_titles": {
+      "name": "club_titles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "club_id": {
+          "name": "club_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "championship_id": {
+          "name": "championship_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titles_count": {
+          "name": "titles_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        }
+      },
+      "indexes": {
+        "club_titles_club_championship_idx": {
+          "name": "club_titles_club_championship_idx",
+          "columns": [
+            {
+              "expression": "club_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "championship_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "club_titles_club_id_clubs_id_fk": {
+          "name": "club_titles_club_id_clubs_id_fk",
+          "tableFrom": "club_titles",
+          "tableTo": "clubs",
+          "columnsFrom": [
+            "club_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "club_titles_championship_id_championships_id_fk": {
+          "name": "club_titles_championship_id_championships_id_fk",
+          "tableFrom": "club_titles",
+          "tableTo": "championships",
+          "columnsFrom": [
+            "championship_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "club_titles_count_check": {
+          "name": "club_titles_count_check",
+          "value": "\"club_titles\".\"titles_count\" > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.clubs": {
+      "name": "clubs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "public_id": {
+          "name": "public_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "country": {
+          "name": "country",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "shield": {
+          "name": "shield",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stadium": {
+          "name": "stadium",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "clubs_public_id_idx": {
+          "name": "clubs_public_id_idx",
+          "columns": [
+            {
+              "expression": "public_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "clubs_name_idx": {
+          "name": "clubs_name_idx",
+          "columns": [
+            {
+              "expression": "lower(\"name\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.rounds": {
+      "name": "rounds",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "championship_id": {
+          "name": "championship_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "identifier": {
+          "name": "identifier",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "home_team_id": {
+          "name": "home_team_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "visit_team_id": {
+          "name": "visit_team_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "home_goals": {
+          "name": "home_goals",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "visit_goals": {
+          "name": "visit_goals",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phase": {
+          "name": "phase",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "rounds_championship_id_championships_id_fk": {
+          "name": "rounds_championship_id_championships_id_fk",
+          "tableFrom": "rounds",
+          "tableTo": "championships",
+          "columnsFrom": [
+            "championship_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "rounds_home_team_id_clubs_id_fk": {
+          "name": "rounds_home_team_id_clubs_id_fk",
+          "tableFrom": "rounds",
+          "tableTo": "clubs",
+          "columnsFrom": [
+            "home_team_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "rounds_visit_team_id_clubs_id_fk": {
+          "name": "rounds_visit_team_id_clubs_id_fk",
+          "tableFrom": "rounds",
+          "tableTo": "clubs",
+          "columnsFrom": [
+            "visit_team_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "rounds_home_goals_check": {
+          "name": "rounds_home_goals_check",
+          "value": "\"rounds\".\"home_goals\" >= 0"
+        },
+        "rounds_visit_goals_check": {
+          "name": "rounds_visit_goals_check",
+          "value": "\"rounds\".\"visit_goals\" >= 0"
+        },
+        "rounds_teams_check": {
+          "name": "rounds_teams_check",
+          "value": "\"rounds\".\"home_team_id\" <> \"rounds\".\"visit_team_id\""
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.championship_type": {
+      "name": "championship_type",
+      "schema": "public",
+      "values": [
+        "elimination rounds",
+        "league",
+        "mixed",
+        "groups"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
