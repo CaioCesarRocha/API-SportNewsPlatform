@@ -1,4 +1,4 @@
-import { asc, eq, inArray, InferInsertModel, InferSelectModel } from "drizzle-orm";
+import { asc, eq, ilike, inArray, InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 import { db } from "../db/index";
 import { championships, clubChampionships, clubs } from "../db/schema";
@@ -18,6 +18,10 @@ export type ChampionshipClub = Omit<InferSelectModel<typeof clubs>, "id" | "publ
 };
 export type ChampionshipWithClubs = Championship & {
   clubs: ChampionshipClub[];
+};
+
+export type ListChampionshipsParams = {
+  name?: string;
 };
 
 export class InvalidChampionshipClubsError extends Error {
@@ -73,8 +77,9 @@ export class ChampionshipService {
     });
   }
 
-  async getAllChampionships(): Promise<Championship[]> {
+  async getAllChampionships(params?: ListChampionshipsParams): Promise<Championship[]> {
     return db.query.championships.findMany({
+      where: params?.name ? ilike(championships.name, `%${params.name}%`) : undefined,
       orderBy: [asc(championships.name)],
     });
   }

@@ -99,9 +99,13 @@ export class ChampionshipController {
     }
   };
 
-  getAllChampionships = async (_request: Request, response: Response): Promise<Response> => {
+  getAllChampionships = async (request: Request, response: Response): Promise<Response> => {
+    const nameChampionship = typeof request.query.name === "string" ? request.query.name : undefined;
+    
     try {
-      const championships = await this.championshipService.getAllChampionships();
+      const championships = await this.championshipService.getAllChampionships({
+        name: nameChampionship,
+      });
 
       return response.status(200).json(championships);
     } catch {

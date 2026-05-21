@@ -94,3 +94,16 @@ export const createChampionshipBodySchema = z
 export const getChampionshipByIdParamsSchema = z.object({
   id: requiredString("id").regex(/^[1-9]\d*$/, "id must be a positive integer."),
 });
+
+export const getAllChampionshipsQuerySchema = z.object({
+  name: z.preprocess(
+    emptyStringToUndefined,
+    z
+      .string({
+        error: "name must be a string.",
+      })
+      .trim()
+      .min(1, "name is required.")
+      .optional(),
+  ),
+});

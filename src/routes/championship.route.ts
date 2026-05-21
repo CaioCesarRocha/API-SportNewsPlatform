@@ -6,6 +6,7 @@ import { validateRequest } from "../middlewares/validate-request";
 import { ImageStorageService } from "../services/image-storage.service";
 import {
   createChampionshipBodySchema,
+  getAllChampionshipsQuerySchema,
   getChampionshipByIdParamsSchema,
 } from "./championship.schema";
 import { ChampionshipService } from "../services/championship.service";
@@ -30,6 +31,10 @@ router.get(
   validateRequest({ params: getChampionshipByIdParamsSchema }),
   championshipController.getChampionshipById,
 );
-router.get("/", championshipController.getAllChampionships);
+router.get(
+  "/",
+  validateRequest({ query: getAllChampionshipsQuerySchema }),
+  championshipController.getAllChampionships,
+);
 
 export default router;
