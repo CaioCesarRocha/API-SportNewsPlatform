@@ -11,6 +11,19 @@ function getValidationMessage(error: ZodError): string {
   return error.issues[0]?.message ?? "Invalid request data.";
 }
 
+function setRequestProperty<K extends keyof Request>(
+  request: Request,
+  property: K,
+  value: Request[K],
+): void {
+  Object.defineProperty(request, property, {
+    value,
+    writable: true,
+    configurable: true,
+    enumerable: true,
+  });
+}
+
 export function validateRequest(schemas: RequestSchemas): RequestHandler {
   return (request: Request, response: Response, next: NextFunction) => {
     if (schemas.body) {
@@ -22,7 +35,7 @@ export function validateRequest(schemas: RequestSchemas): RequestHandler {
         });
       }
 
-      request.body = parsedBody.data;
+      setRequestProperty(request, "body", parsedBody.data as Request["body"]);
     }
 
     if (schemas.params) {
@@ -34,7 +47,7 @@ export function validateRequest(schemas: RequestSchemas): RequestHandler {
         });
       }
 
-      request.params = parsedParams.data as Request["params"];
+      setRequestProperty(request, "params", parsedParams.data as Request["params"]);
     }
 
     if (schemas.query) {
@@ -46,7 +59,7 @@ export function validateRequest(schemas: RequestSchemas): RequestHandler {
         });
       }
 
-      request.query = parsedQuery.data as Request["query"];
+      setRequestProperty(request, "query", parsedQuery.data as Request["query"]);
     }
 
     return next();
