@@ -1,7 +1,9 @@
 import express from "express";
+import swaggerUi from "swagger-ui-express";
 
 import { checkDatabaseConnection } from "./db";
 import routes from "./routes";
+import { swaggerSpec } from "./swagger";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -34,6 +36,9 @@ app.use((request, response, next) => {
 });
 
 app.use(express.json());
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 app.use(routes);
 
 async function startServer(): Promise<void> {
