@@ -26,3 +26,7 @@ export const getClubsByLocationParamsSchema = z.object({
   country: requiredString("country route param"),
   state: requiredString("state route param"),
 });
+
+export const updateClubParamsSchema = z.object({
+  id: requiredString("id route param"),
+});

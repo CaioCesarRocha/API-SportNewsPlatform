@@ -113,4 +113,85 @@ export class ClubController {
       });
     }
   };
+
+  updateClub = async (request: Request, response: Response): Promise<Response> => {
+    let uploadedImageId: string | null = null;
+
+    try {
+      const { id } = request.params as { id: string };
+      const payload = request.body as Omit<CreateClubPayload, "shield">;
+
+      let shieldUrl: string;
+
+      if (request.file) {
+        const uploadedImage = await this.imageStorageService.uploadImage({
+          file: request.file as Express.Multer.File,
+          fileNamePrefix: payload.name,
+          folder: "/clubs/shields",
+          tags: ["club", "shield"],
+        });
+
+        uploadedImageId = uploadedImage.fileId;
+        shieldUrl = uploadedImage.url;
+      } else {
+        const existingClub = await this.clubService.getClubByPublicId(id);
+
+        if (!existingClub) {
+          return response.status(404).json({
+            message: "Club not found.",
+          });
+        }
+
+        shieldUrl = existingClub.shield;
+      }
+
+      const club = await this.clubService.updateClub(id, {
+        name: payload.name,
+        country: payload.country,
+        state: payload.state,
+        shield: shieldUrl,
+        stadium: payload.stadium,
+      });
+
+      if (!club) {
+        await this.deleteUploadedImage(uploadedImageId);
+
+        return response.status(404).json({
+          message: "Club not found.",
+        });
+      }
+
+      return response.status(200).json(club);
+    } catch (error) {
+      await this.deleteUploadedImage(uploadedImageId);
+
+      if (error instanceof ImageStorageNotConfiguredError) {
+        return response.status(500).json({
+          message: "ImageKit upload is not configured.",
+        });
+      }
+
+      if (error instanceof ImageUploadError) {
+        return response.status(502).json({
+          message: error.message,
+        });
+      }
+
+      const databaseError = this.getDatabaseError(error);
+      const rootCause = databaseError.cause;
+
+      if (
+        (databaseError.code === "23505" && databaseError.constraint === "clubs_name_idx") ||
+        (rootCause?.code === "23505" && rootCause.constraint === "clubs_name_idx")
+      ) {
+        return response.status(409).json({
+          message: "A club with this name already exists.",
+        });
+      }
+
+      return response.status(500).json({
+        message: "Failed to update club.",
+      });
+    }
+  };
 }
