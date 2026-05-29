@@ -4,6 +4,7 @@ import {
   InvalidChampionshipClubsError,
   ChampionshipService,
   CreateChampionshipPayload,
+  UpdateChampionshipPayload,
 } from "../services/championship.service";
 import {
   ImageStorageNotConfiguredError,
@@ -131,6 +132,86 @@ export class ChampionshipController {
     } catch {
       return response.status(500).json({
         message: "Failed to get championship.",
+      });
+    }
+  };
+
+  updateChampionship = async (request: Request, response: Response): Promise<Response> => {
+    let uploadedImageId: string | null = null;
+
+    try {
+      const championshipId = Number(request.params.id);
+      const payload = request.body as Omit<CreateChampionshipPayload, "type" | "emblem" | "clubsCount" | "clubs">;
+
+      let emblemUrl: string;
+
+      if (request.file) {
+        const uploadedImage = await this.imageStorageService.uploadImage({
+          file: request.file as Express.Multer.File,
+          fileNamePrefix: payload.name,
+          folder: "/championships/emblems",
+          tags: ["championship", "emblem"],
+        });
+
+        uploadedImageId = uploadedImage.fileId;
+        emblemUrl = uploadedImage.url;
+      } else {
+        const existingChampionship = await this.championshipService.getChampionshipById(championshipId);
+
+        if (!existingChampionship) {
+          return response.status(404).json({
+            message: "Championship not found.",
+          });
+        }
+
+        emblemUrl = existingChampionship.emblem;
+      }
+
+      const championship = await this.championshipService.updateChampionship(championshipId, {
+        name: payload.name,
+        weight: payload.weight,
+        emblem: emblemUrl,
+      });
+
+      if (!championship) {
+        await this.deleteUploadedImage(uploadedImageId);
+
+        return response.status(404).json({
+          message: "Championship not found.",
+        });
+      }
+
+      return response.status(200).json(championship);
+    } catch (error) {
+      await this.deleteUploadedImage(uploadedImageId);
+
+      if (error instanceof ImageStorageNotConfiguredError) {
+        return response.status(500).json({
+          message: "ImageKit upload is not configured.",
+        });
+      }
+
+      if (error instanceof ImageUploadError) {
+        return response.status(502).json({
+          message: error.message,
+        });
+      }
+
+      const databaseError = this.getDatabaseError(error);
+      const rootCause = databaseError.cause;
+
+      if (
+        (databaseError.code === "23505" &&
+          databaseError.constraint === "championships_name_idx") ||
+        (rootCause?.code === "23505" && rootCause.constraint === "championships_name_idx")
+      ) {
+        return response.status(409).json({
+          message: "A championship with this name already exists.",
+        });
+      }
+
+      return response.status(500).json({
+        message: "Failed to update championship.",
       });
     }
   };

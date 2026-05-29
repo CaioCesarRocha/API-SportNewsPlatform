@@ -1,4 +1,4 @@
-import { asc, eq, ilike, inArray, InferInsertModel, InferSelectModel } from "drizzle-orm";
+import { asc, eq, ilike, inArray, InferInsertModel, InferSelectModel, ne } from "drizzle-orm";
 
 import { db } from "../db/index";
 import { championships, clubChampionships, clubs } from "../db/schema";
@@ -23,6 +23,11 @@ export type ChampionshipWithClubs = Championship & {
 export type ListChampionshipsParams = {
   name?: string;
 };
+
+export type UpdateChampionshipPayload = Pick<
+  InferInsertModel<typeof championships>,
+  "name" | "weight" | "emblem"
+>;
 
 export class InvalidChampionshipClubsError extends Error {
   constructor(message: string) {
@@ -106,5 +111,23 @@ export class ChampionshipService {
       ...championshipData,
       clubs: clubLinks.map((clubLink) => this.serializeClub(clubLink.club)),
     };
+  }
+
+  async updateChampionship(id: number, payload: UpdateChampionshipPayload): Promise<Championship | null> {
+    const [updatedChampionship] = await db
+      .update(championships)
+      .set({
+        name: payload.name,
+        weight: payload.weight,
+        emblem: payload.emblem,
+      })
+      .where(eq(championships.id, id))
+      .returning();
+
+    if (!updatedChampionship) {
+      return null;
+    }
+
+    return updatedChampionship;
   }
 }

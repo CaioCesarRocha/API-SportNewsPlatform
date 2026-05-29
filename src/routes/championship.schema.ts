@@ -107,3 +107,24 @@ export const getAllChampionshipsQuerySchema = z.object({
       .optional(),
   ),
 });
+
+export const updateChampionshipBodySchema = z.object({
+  name: requiredString("name"),
+  weight: z.preprocess(
+    emptyStringToUndefined,
+    z
+      .coerce.number({
+        error: (issue) =>
+          issue.input === undefined
+            ? "weight is required."
+            : "weight must be an integer between 1 and 7.",
+      })
+      .int("weight must be an integer between 1 and 7.")
+      .min(1, "weight must be an integer between 1 and 7.")
+      .max(7, "weight must be an integer between 1 and 7."),
+  ),
+});
+
+export const updateChampionshipParamsSchema = z.object({
+  id: requiredString("id").regex(/^[1-9]\d*$/, "id must be a positive integer."),
+});
