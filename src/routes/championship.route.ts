@@ -8,6 +8,8 @@ import {
   createChampionshipBodySchema,
   getAllChampionshipsQuerySchema,
   getChampionshipByIdParamsSchema,
+  updateChampionshipBodySchema,
+  updateChampionshipParamsSchema,
 } from "./championship.schema";
 import { ChampionshipService } from "../services/championship.service";
 
@@ -25,6 +27,13 @@ router.post(
   requireUploadedFile("emblem"),
   validateRequest({ body: createChampionshipBodySchema }),
   championshipController.createChampionship,
+);
+
+router.put(
+  "/:id",
+  uploadImageField("emblem"),
+  validateRequest({ body: updateChampionshipBodySchema, params: updateChampionshipParamsSchema }),
+  championshipController.updateChampionship,
 );
 router.get(
   "/:id",

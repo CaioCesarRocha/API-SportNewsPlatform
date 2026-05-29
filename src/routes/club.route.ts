@@ -4,7 +4,11 @@ import { ClubController } from "../controllers/club.controller";
 import { requireUploadedFile, uploadImageField } from "../middlewares/upload-image";
 import { validateRequest } from "../middlewares/validate-request";
 import { ImageStorageService } from "../services/image-storage.service";
-import { createClubBodySchema, getClubsByLocationParamsSchema } from "./club.schema";
+import {
+  createClubBodySchema,
+  getClubsByLocationParamsSchema,
+  updateClubParamsSchema,
+} from "./club.schema";
 import { ClubService } from "../services/club.service";
 
 const router = Router();
@@ -19,6 +23,14 @@ router.post(
   validateRequest({ body: createClubBodySchema }),
   clubController.createClub,
 );
+
+router.put(
+  "/:id",
+  uploadImageField("shield"),
+  validateRequest({ body: createClubBodySchema, params: updateClubParamsSchema }),
+  clubController.updateClub,
+);
+
 router.get(
   "/location/:country/:state",
   validateRequest({ params: getClubsByLocationParamsSchema }),
