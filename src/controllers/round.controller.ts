@@ -4,6 +4,7 @@ import {
   CreateRoundPayload,
   InvalidRoundReferenceError,
   RoundService,
+  UpdateRoundPayload,
 } from "../services/round.service";
 
 type DatabaseError = {
@@ -61,11 +62,50 @@ export class RoundController {
     }
   };
 
+  updateRound = async (request: Request, response: Response): Promise<Response> => {
+    try {
+      const { id } = request.params as { id: string };
+      const payload = request.body as UpdateRoundPayload;
+
+      const round = await this.roundService.updateRound(Number(id), {
+        ...payload,
+        date: payload.date ? new Date(payload.date) : undefined,
+      });
+
+      return response.status(200).json(round);
+    } catch (error) {
+      if (error instanceof InvalidRoundReferenceError) {
+        return response.status(400).json({
+          message: error.message,
+        });
+      }
+
+      const databaseError = this.getDatabaseError(error);
+
+      if (
+        databaseError.code === "23514" ||
+        databaseError.cause?.code === "23514" ||
+        databaseError.code === "23503" ||
+        databaseError.cause?.code === "23503"
+      ) {
+        return response.status(400).json({
+          message: "Invalid round data.",
+        });
+      }
+
+      return response.status(500).json({
+        message: "Failed to update round.",
+      });
+    }
+  };
+
   listRoundsByFilter = async (request: Request, response: Response): Promise<Response> => {
     try {
-      const { championshipId, identifier } = request.params as {
+      const { championshipId } = request.params as {
         championshipId: string;
-        identifier: string;
+      };
+      const { identifier } = request.query as {
+        identifier?: string;
       };
 
       const rounds = await this.roundService.listRoundsByFilter({

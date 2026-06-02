@@ -3,6 +3,16 @@ import { and, asc, eq, ilike, inArray, InferInsertModel, InferSelectModel } from
 import { db } from "../db";
 import { championships, clubChampionships, clubs, rounds } from "../db/schema";
 
+export type UpdateRoundPayload = {
+  identifier?: string;
+  homeTeamId?: string;
+  visitTeamId?: string;
+  homeGoals?: number;
+  visitGoals?: number;
+  date?: Date;
+  phase?: string;
+};
+
 export type CreateRoundPayload = Pick<
   InferInsertModel<typeof rounds>,
   "championshipId" | "identifier" | "homeGoals" | "visitGoals" | "date" | "phase"
@@ -13,7 +23,7 @@ export type CreateRoundPayload = Pick<
 
 export type ListRoundsByFilterParams = {
   championshipId: number;
-  identifier: string;
+  identifier?: string;
 };
 
 export type Round = InferSelectModel<typeof rounds>;
@@ -110,13 +120,13 @@ export class RoundService {
         .insert(rounds)
         .values({
           championshipId: payload.championshipId,
-          identifier: payload.identifier,
+          identifier: payload.identifier.toLowerCase(),
           homeTeamId: homeTeam.id,
           visitTeamId: visitTeam.id,
           homeGoals: payload.homeGoals,
           visitGoals: payload.visitGoals,
           date: payload.date,
-          phase: payload.phase,
+          phase: payload.phase.toLowerCase(),
         })
         .returning();
 
@@ -125,11 +135,15 @@ export class RoundService {
   }
 
   async listRoundsByFilter(params: ListRoundsByFilterParams): Promise<RoundResponse[]> {
+    const whereClause = params.identifier
+      ? and(
+          eq(rounds.championshipId, params.championshipId),
+          ilike(rounds.identifier, params.identifier),
+        )
+      : eq(rounds.championshipId, params.championshipId);
+
     const result = await db.query.rounds.findMany({
-      where: and(
-        eq(rounds.championshipId, params.championshipId),
-        ilike(rounds.identifier, params.identifier),
-      ),
+      where: whereClause,
       with: {
         homeTeam: true,
         visitTeam: true,
@@ -140,5 +154,115 @@ export class RoundService {
     return result.map(({ homeTeam, visitTeam, ...round }) =>
       this.serializeRound(round, homeTeam, visitTeam),
     );
+  }
+
+  async updateRound(id: number, payload: UpdateRoundPayload): Promise<RoundResponse> {
+    return db.transaction(async (tx) => {
+      const existingRound = await tx.query.rounds.findFirst({
+        where: eq(rounds.id, id),
+        with: {
+          homeTeam: true,
+          visitTeam: true,
+        },
+      });
+
+      if (!existingRound) {
+        throw new InvalidRoundReferenceError("Round not found.");
+      }
+
+      if (
+        payload.homeTeamId &&
+        payload.visitTeamId &&
+        payload.homeTeamId === payload.visitTeamId
+      ) {
+        throw new InvalidRoundReferenceError("homeTeamId and visitTeamId must be different.");
+      }
+
+      let newHomeTeamId: number | undefined;
+      let newVisitTeamId: number | undefined;
+
+      const teamPublicIds = [payload.homeTeamId, payload.visitTeamId].filter(Boolean) as string[];
+
+      if (teamPublicIds.length > 0) {
+        const selectedClubs = await tx.query.clubs.findMany({
+          where: inArray(clubs.publicId, teamPublicIds),
+        });
+
+        if (selectedClubs.length !== teamPublicIds.length) {
+          throw new InvalidRoundReferenceError("One or more clubs do not exist.");
+        }
+
+        const clubIds = selectedClubs.map((club) => club.id);
+        const championshipClubLinks = await tx.query.clubChampionships.findMany({
+          where: and(
+            eq(clubChampionships.championshipId, existingRound.championshipId),
+            inArray(clubChampionships.clubId, clubIds),
+          ),
+        });
+
+        if (championshipClubLinks.length !== clubIds.length) {
+          throw new InvalidRoundReferenceError(
+            "Both clubs must belong to the informed championship.",
+          );
+        }
+
+        if (payload.homeTeamId) {
+          const club = selectedClubs.find((c) => c.publicId === payload.homeTeamId);
+          if (club) newHomeTeamId = club.id;
+        }
+
+        if (payload.visitTeamId) {
+          const club = selectedClubs.find((c) => c.publicId === payload.visitTeamId);
+          if (club) newVisitTeamId = club.id;
+        }
+      }
+
+      const resolvedHomeTeamId = newHomeTeamId ?? existingRound.homeTeamId;
+      const resolvedVisitTeamId = newVisitTeamId ?? existingRound.visitTeamId;
+
+      if (resolvedHomeTeamId === resolvedVisitTeamId) {
+        throw new InvalidRoundReferenceError("homeTeamId and visitTeamId must be different.");
+      }
+
+      const updateData: Partial<InferInsertModel<typeof rounds>> & { homeTeamId?: number; visitTeamId?: number } = {};
+
+      if (payload.identifier !== undefined) {
+        updateData.identifier = payload.identifier.toLowerCase();
+      }
+      if (payload.homeGoals !== undefined) {
+        updateData.homeGoals = payload.homeGoals;
+      }
+      if (payload.visitGoals !== undefined) {
+        updateData.visitGoals = payload.visitGoals;
+      }
+      if (payload.date !== undefined) {
+        updateData.date = payload.date;
+      }
+      if (payload.phase !== undefined) {
+        updateData.phase = payload.phase.toLowerCase();
+      }
+      if (newHomeTeamId !== undefined) {
+        updateData.homeTeamId = newHomeTeamId;
+      }
+      if (newVisitTeamId !== undefined) {
+        updateData.visitTeamId = newVisitTeamId;
+      }
+
+      await tx.update(rounds).set(updateData).where(eq(rounds.id, id));
+
+      const updatedRound = await tx.query.rounds.findFirst({
+        where: eq(rounds.id, id),
+        with: {
+          homeTeam: true,
+          visitTeam: true,
+        },
+      });
+
+      if (!updatedRound) {
+        throw new InvalidRoundReferenceError("Round not found after update.");
+      }
+
+      return this.serializeRound(updatedRound, updatedRound.homeTeam, updatedRound.visitTeam);
+    });
   }
 }
