@@ -473,9 +473,87 @@ export const swaggerSpec: OpenAPIV3.Document = {
         },
       },
     },
-    "/rounds/{championshipId}/{identifier}": {
+    "/rounds/{id}": {
+      put: {
+        summary: "Atualiza uma rodada/partida existente",
+        tags: ["Rounds"],
+        parameters: [
+          {
+            in: "path",
+            name: "id",
+            required: true,
+            schema: { type: "integer", minimum: 1 },
+            description: "ID da rodada",
+            example: 1,
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  identifier: {
+                    type: "string",
+                    description: "Identificador da rodada (opcional)",
+                    example: "1ª rodada",
+                  },
+                  homeTeamId: {
+                    type: "string",
+                    description: "Public ID do time da casa (opcional)",
+                    example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
+                  },
+                  visitTeamId: {
+                    type: "string",
+                    description: "Public ID do time visitante (opcional)",
+                    example: "b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6a",
+                  },
+                  homeGoals: {
+                    type: "integer",
+                    minimum: 0,
+                    description: "Gols do time da casa (opcional)",
+                    example: 2,
+                  },
+                  visitGoals: {
+                    type: "integer",
+                    minimum: 0,
+                    description: "Gols do time visitante (opcional)",
+                    example: 1,
+                  },
+                  date: {
+                    type: "string",
+                    format: "date-time",
+                    description: "Data e hora da partida ISO datetime (opcional)",
+                    example: "2026-05-28T20:00:00.000Z",
+                  },
+                  phase: {
+                    type: "string",
+                    description: "Fase do campeonato (opcional)",
+                    example: "Fase de Grupos",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Rodada atualizada com sucesso",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/RoundResponse" },
+              },
+            },
+          },
+          "400": { description: "Erro de validação" },
+          "500": { description: "Erro interno do servidor" },
+        },
+      },
+    },
+    "/rounds/{championshipId}": {
       get: {
-        summary: "Lista rodadas por campeonato e identificador",
+        summary: "Lista rodadas por campeonato (e opcionalmente por identificador)",
         tags: ["Rounds"],
         parameters: [
           {
@@ -487,11 +565,11 @@ export const swaggerSpec: OpenAPIV3.Document = {
             example: 1,
           },
           {
-            in: "path",
+            in: "query",
             name: "identifier",
-            required: true,
+            required: false,
             schema: { type: "string" },
-            description: "Identificador da rodada",
+            description: "Identificador da rodada (opcional — se omitido, retorna todas as rodadas do campeonato)",
             example: "1ª rodada",
           },
         ],
