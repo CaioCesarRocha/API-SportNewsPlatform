@@ -9,7 +9,6 @@ import {
   text,
   timestamp,
   uniqueIndex,
-  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -71,17 +70,15 @@ export const clubTitles = pgTable(
   "club_titles",
   {
     id: serial("id").primaryKey(),
-    clubId: integer("club_id")
+    clubId: varchar("club_id", { length: 32 })
       .notNull()
-      .references(() => clubs.id, { onDelete: "cascade" }),
+      .references(() => clubs.publicId, { onDelete: "cascade" }),
     championshipId: integer("championship_id")
       .notNull()
       .references(() => championships.id, { onDelete: "cascade" }),
-    titlesCount: integer("titles_count").notNull().default(1),
   },
   (table) => [
     uniqueIndex("club_titles_club_championship_idx").on(table.clubId, table.championshipId),
-    check("club_titles_count_check", sql`${table.titlesCount} > 0`),
   ],
 );
 
@@ -141,7 +138,7 @@ export const clubChampionshipsRelations = relations(
 export const clubTitlesRelations = relations(clubTitles, ({ one }) => ({
   club: one(clubs, {
     fields: [clubTitles.clubId],
-    references: [clubs.id],
+    references: [clubs.publicId],
   }),
   championship: one(championships, {
     fields: [clubTitles.championshipId],

@@ -1,7 +1,7 @@
 import { asc, eq, ilike, inArray, InferInsertModel, InferSelectModel, ne } from "drizzle-orm";
 
 import { db } from "../db/index";
-import { championships, clubChampionships, clubs } from "../db/schema";
+import { championships, clubChampionships, clubTitles, clubs } from "../db/schema";
 
 export type ChampionshipType = "elimination rounds" | "league" | "mixed" | "groups";
 
@@ -129,5 +129,25 @@ export class ChampionshipService {
     }
 
     return updatedChampionship;
+  }
+
+  async finishChampionship(championshipId: number, clubPublicId: string): Promise<void> {
+    const [existing] = await db
+      .select()
+      .from(clubTitles)
+      .where(eq(clubTitles.championshipId, championshipId))
+      .limit(1);
+
+    if (existing) {
+      await db
+        .update(clubTitles)
+        .set({ clubId: clubPublicId })
+        .where(eq(clubTitles.championshipId, championshipId));
+    } else {
+      await db.insert(clubTitles).values({
+        clubId: clubPublicId,
+        championshipId,
+      });
+    }
   }
 }

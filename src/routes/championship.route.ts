@@ -6,6 +6,7 @@ import { validateRequest } from "../middlewares/validate-request";
 import { ImageStorageService } from "../services/image-storage.service";
 import {
   createChampionshipBodySchema,
+  finishChampionshipBodySchema,
   getAllChampionshipsQuerySchema,
   getChampionshipByIdParamsSchema,
   updateChampionshipBodySchema,
@@ -19,6 +20,12 @@ const imageStorageService = new ImageStorageService();
 const championshipController = new ChampionshipController(
   championshipService,
   imageStorageService,
+);
+
+router.post(
+  "/finish",
+  validateRequest({ body: finishChampionshipBodySchema }),
+  championshipController.finishChampionship,
 );
 
 router.post(

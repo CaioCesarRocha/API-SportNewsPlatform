@@ -136,6 +136,32 @@ export class ChampionshipController {
     }
   };
 
+  finishChampionship = async (request: Request, response: Response): Promise<Response> => {
+    try {
+      const { championshipId, clubId } = request.body as {
+        championshipId: number;
+        clubId: string;
+      };
+
+      const championship = await this.championshipService.getChampionshipById(championshipId);
+
+      if (!championship) {
+        return response.status(404).json({
+          message: "Championship not found.",
+        });
+      }
+
+      await this.championshipService.finishChampionship(championshipId, clubId);
+
+      return response.status(200).json({ message: "Championship finished successfully." });
+    } catch(err) {
+      console.error("error: ", err);
+      return response.status(500).json({
+        message: "Failed to finish championship.",
+      });
+    }
+  };
+
   updateChampionship = async (request: Request, response: Response): Promise<Response> => {
     let uploadedImageId: string | null = null;
 
