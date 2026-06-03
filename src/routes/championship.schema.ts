@@ -128,3 +128,8 @@ export const updateChampionshipBodySchema = z.object({
 export const updateChampionshipParamsSchema = z.object({
   id: requiredString("id").regex(/^[1-9]\d*$/, "id must be a positive integer."),
 });
+
+export const finishChampionshipBodySchema = z.object({
+  championshipId: requiredPositiveInteger("championshipId"),
+  clubId: requiredString("clubId"),
+});

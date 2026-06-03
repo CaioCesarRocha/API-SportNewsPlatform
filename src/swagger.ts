@@ -208,6 +208,55 @@ export const swaggerSpec: OpenAPIV3.Document = {
         },
       },
     },
+    "/championships/finish": {
+      post: {
+        summary: "Finaliza um campeonato definindo o clube campeão",
+        tags: ["Championships"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["championshipId", "clubId"],
+                properties: {
+                  championshipId: {
+                    type: "integer",
+                    minimum: 1,
+                    description: "ID do campeonato",
+                    example: 1,
+                  },
+                  clubId: {
+                    type: "integer",
+                    minimum: 1,
+                    description: "ID do clube campeão",
+                    example: 1,
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Campeonato finalizado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Championship finished successfully." },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Erro de validação" },
+          "404": { description: "Campeonato não encontrado" },
+          "500": { description: "Erro interno do servidor" },
+        },
+      },
+    },
     "/championships": {
       post: {
         summary: "Cria um novo campeonato",
@@ -614,7 +663,6 @@ export const swaggerSpec: OpenAPIV3.Document = {
       ClubTitle: {
         type: "object",
         properties: {
-          titlesCount: { type: "integer" },
           championship: {
             type: "object",
             properties: {
@@ -650,7 +698,6 @@ export const swaggerSpec: OpenAPIV3.Document = {
           stadium: "Allianz Parque",
           titles: [
             {
-              titlesCount: 3,
               championship: {
                 id: 1,
                 name: "Campeonato Brasileiro Série A",
