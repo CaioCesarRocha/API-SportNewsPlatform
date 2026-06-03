@@ -16,7 +16,6 @@ export type ClubResponse = Omit<Club, "id" | "publicId"> & {
 };
 
 export type ClubTitle = {
-  titlesCount: number;
   championship: {
     id: number;
     name: string;
@@ -48,14 +47,12 @@ export class ClubService {
   private serializeClubWithTitles(
     club: Club,
     titleLinks: {
-      titlesCount: number;
       championship: ClubTitle["championship"];
     }[],
   ): ClubWithTitles {
     return {
       ...this.serializeClub(club),
       titles: titleLinks.map((titleLink) => ({
-        titlesCount: titleLink.titlesCount,
         championship: titleLink.championship,
       })),
     };
