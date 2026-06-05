@@ -104,13 +104,15 @@ export class RoundController {
       const { championshipId } = request.params as {
         championshipId: string;
       };
-      const { identifier } = request.query as {
+      const { identifier, phase } = request.query as {
         identifier?: string;
+        phase?: string;
       };
 
       const rounds = await this.roundService.listRoundsByFilter({
         championshipId: Number(championshipId),
         identifier,
+        phase,
       });
 
       return response.status(200).json(rounds);

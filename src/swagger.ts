@@ -35,7 +35,7 @@ export const swaggerSpec: OpenAPIV3.Document = {
             "multipart/form-data": {
               schema: {
                 type: "object",
-                required: ["shield", "name", "country", "stadium"],
+                required: ["shield", "name", "slug", "country", "stadium"],
                 properties: {
                   shield: {
                     type: "string",
@@ -46,6 +46,11 @@ export const swaggerSpec: OpenAPIV3.Document = {
                     type: "string",
                     description: "Nome do clube",
                     example: "Sociedade Esportiva Palmeiras",
+                  },
+                  slug: {
+                    type: "string",
+                    description: "Slug do clube",
+                    example: "sociedade-esportiva-palmeiras",
                   },
                   country: {
                     type: "string",
@@ -121,7 +126,7 @@ export const swaggerSpec: OpenAPIV3.Document = {
             "multipart/form-data": {
               schema: {
                 type: "object",
-                required: ["name", "country", "stadium"],
+                required: ["name", "slug", "country", "stadium"],
                 properties: {
                   shield: {
                     type: "string",
@@ -132,6 +137,11 @@ export const swaggerSpec: OpenAPIV3.Document = {
                     type: "string",
                     description: "Nome do clube",
                     example: "Sociedade Esportiva Palmeiras",
+                  },
+                  slug: {
+                    type: "string",
+                    description: "Slug do clube",
+                    example: "sociedade-esportiva-palmeiras",
                   },
                   country: {
                     type: "string",
@@ -602,7 +612,7 @@ export const swaggerSpec: OpenAPIV3.Document = {
     },
     "/rounds/{championshipId}": {
       get: {
-        summary: "Lista rodadas por campeonato (e opcionalmente por identificador)",
+        summary: "Lista rodadas por campeonato (e opcionalmente por identificador/fase)",
         tags: ["Rounds"],
         parameters: [
           {
@@ -620,6 +630,14 @@ export const swaggerSpec: OpenAPIV3.Document = {
             schema: { type: "string" },
             description: "Identificador da rodada (opcional — se omitido, retorna todas as rodadas do campeonato)",
             example: "1ª rodada",
+          },
+          {
+            in: "query",
+            name: "phase",
+            required: false,
+            schema: { type: "string" },
+            description: "Fase do campeonato (opcional — ex: grupo, oitavas, quartas, semi, final)",
+            example: "grupo",
           },
         ],
         responses: {
@@ -646,6 +664,7 @@ export const swaggerSpec: OpenAPIV3.Document = {
         properties: {
           id: { type: "string" },
           name: { type: "string" },
+          slug: { type: "string" },
           country: { type: "string" },
           state: { type: "string", nullable: true },
           shield: { type: "string" },
@@ -654,6 +673,7 @@ export const swaggerSpec: OpenAPIV3.Document = {
         example: {
           id: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
           name: "Sociedade Esportiva Palmeiras",
+          slug: "sociedade-esportiva-palmeiras",
           country: "Brasil",
           state: "São Paulo",
           shield: "https://ik.imagekit.io/sportnews/clubs/shields/palmeiras.jpg",
@@ -692,6 +712,7 @@ export const swaggerSpec: OpenAPIV3.Document = {
         example: {
           id: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
           name: "Sociedade Esportiva Palmeiras",
+          slug: "sociedade-esportiva-palmeiras",
           country: "Brasil",
           state: "São Paulo",
           shield: "https://ik.imagekit.io/sportnews/clubs/shields/palmeiras.jpg",
@@ -753,6 +774,7 @@ export const swaggerSpec: OpenAPIV3.Document = {
             {
               id: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
               name: "Sociedade Esportiva Palmeiras",
+              slug: "sociedade-esportiva-palmeiras",
               country: "Brasil",
               state: "São Paulo",
               shield: "https://ik.imagekit.io/sportnews/clubs/shields/palmeiras.jpg",
@@ -766,6 +788,7 @@ export const swaggerSpec: OpenAPIV3.Document = {
         properties: {
           id: { type: "string" },
           name: { type: "string" },
+          slug: { type: "string" },
           country: { type: "string" },
           state: { type: "string", nullable: true },
           shield: { type: "string" },
@@ -796,6 +819,7 @@ export const swaggerSpec: OpenAPIV3.Document = {
           homeTeam: {
             id: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
             name: "Sociedade Esportiva Palmeiras",
+            slug: "sociedade-esportiva-palmeiras",
             country: "Brasil",
             state: "São Paulo",
             shield: "https://ik.imagekit.io/sportnews/clubs/shields/palmeiras.jpg",
@@ -804,6 +828,7 @@ export const swaggerSpec: OpenAPIV3.Document = {
           visitTeam: {
             id: "b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6a",
             name: "Sport Club Corinthians Paulista",
+            slug: "sport-club-corinthians-paulista",
             country: "Brasil",
             state: "São Paulo",
             shield: "https://ik.imagekit.io/sportnews/clubs/shields/corinthians.jpg",
