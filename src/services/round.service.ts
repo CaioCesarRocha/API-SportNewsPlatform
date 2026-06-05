@@ -24,6 +24,7 @@ export type CreateRoundPayload = Pick<
 export type ListRoundsByFilterParams = {
   championshipId: number;
   identifier?: string;
+  phase?: string;
 };
 
 export type Round = InferSelectModel<typeof rounds>;
@@ -31,6 +32,7 @@ export type Round = InferSelectModel<typeof rounds>;
 export type RoundClub = {
   id: string;
   name: string;
+  slug: string;
   country: string;
   state: string | null;
   shield: string;
@@ -54,6 +56,7 @@ export class RoundService {
     return {
       id: club.publicId,
       name: club.name,
+      slug: club.slug,
       country: club.country,
       state: club.state ?? null,
       shield: club.shield,
@@ -135,12 +138,19 @@ export class RoundService {
   }
 
   async listRoundsByFilter(params: ListRoundsByFilterParams): Promise<RoundResponse[]> {
-    const whereClause = params.identifier
-      ? and(
-          eq(rounds.championshipId, params.championshipId),
-          ilike(rounds.identifier, params.identifier),
-        )
-      : eq(rounds.championshipId, params.championshipId);
+    const conditions = [
+      eq(rounds.championshipId, params.championshipId),
+    ];
+
+    if (params.identifier) {
+      conditions.push(ilike(rounds.identifier, params.identifier));
+    }
+
+    if (params.phase) {
+      conditions.push(ilike(rounds.phase, params.phase));
+    }
+
+    const whereClause = and(...conditions);
 
     const result = await db.query.rounds.findMany({
       where: whereClause,

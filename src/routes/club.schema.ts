@@ -14,6 +14,7 @@ const requiredString = (fieldName: string) =>
 
 export const createClubBodySchema = z.object({
   name: requiredString("name"),
+  slug: requiredString("slug"),
   country: requiredString("country"),
   state: z.preprocess(
     emptyStringToUndefined,

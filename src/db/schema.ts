@@ -42,6 +42,7 @@ export const clubs = pgTable(
     id: serial("id").primaryKey(),
     publicId: varchar("public_id", { length: 32 }).notNull(),
     name: varchar("name", { length: 120 }).notNull(),
+    slug: varchar("slug", { length: 120 }).notNull(),
     country: varchar("country", { length: 80 }).notNull(),
     state: varchar("state", { length: 80 }),
     shield: text("shield").notNull(),
@@ -50,6 +51,7 @@ export const clubs = pgTable(
   (table) => [
     uniqueIndex("clubs_public_id_idx").on(table.publicId),
     uniqueIndex("clubs_name_idx").on(sql`lower(${table.name})`),
+    uniqueIndex("clubs_slug_idx").on(table.slug),
   ],
 );
 

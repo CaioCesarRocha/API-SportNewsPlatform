@@ -114,4 +114,5 @@ export const listRoundsByFilterParamsSchema = z.object({
 
 export const listRoundsByFilterQuerySchema = z.object({
   identifier: requiredString("identifier").optional(),
+  phase: requiredString("phase").optional(),
 });

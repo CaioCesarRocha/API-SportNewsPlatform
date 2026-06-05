@@ -6,7 +6,7 @@ import { clubs } from "../db/schema";
 
 export type CreateClubPayload = Pick<
   InferInsertModel<typeof clubs>,
-  "name" | "country" | "state" | "shield" | "stadium"
+  "name" | "slug" | "country" | "state" | "shield" | "stadium"
 >;
 
 export type Club = InferSelectModel<typeof clubs>;
@@ -64,6 +64,7 @@ export class ClubService {
       .values({
         publicId: this.generatePublicId(),
         name: payload.name,
+        slug: payload.slug,
         country: payload.country,
         state: payload.state?.trim() ? payload.state.trim() : null,
         shield: payload.shield,
@@ -115,6 +116,7 @@ export class ClubService {
       .update(clubs)
       .set({
         name: payload.name,
+        slug: payload.slug,
         country: payload.country,
         state: payload.state?.trim() ? payload.state.trim() : null,
         shield: payload.shield,
