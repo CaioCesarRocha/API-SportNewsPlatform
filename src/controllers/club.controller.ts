@@ -48,6 +48,7 @@ export class ClubController {
 
       const club = await this.clubService.createClub({
         name: payload.name,
+        slug: payload.slug,
         country: payload.country,
         state: payload.state,
         shield: uploadedImage.url,
@@ -147,6 +148,7 @@ export class ClubController {
 
       const club = await this.clubService.updateClub(id, {
         name: payload.name,
+        slug: payload.slug,
         country: payload.country,
         state: payload.state,
         shield: shieldUrl,
