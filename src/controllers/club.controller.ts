@@ -6,22 +6,13 @@ import {
   ImageStorageService,
   ImageUploadError,
 } from "../services/image-storage.service";
-
-type DatabaseError = {
-  code?: string;
-  constraint?: string;
-  cause?: DatabaseError;
-};
+import { createUniqueConstraintErrorResponse } from "../utils/database-error";
 
 export class ClubController {
   constructor(
     private readonly clubService: ClubService,
     private readonly imageStorageService: ImageStorageService,
   ) {}
-
-  private getDatabaseError(error: unknown): DatabaseError {
-    return error as DatabaseError;
-  }
 
   private async deleteUploadedImage(fileId: string | null): Promise<void> {
     if (!fileId) {
@@ -57,6 +48,7 @@ export class ClubController {
 
       return response.status(201).json(club);
     } catch (error) {
+      console.error("error create club: ", error);
       await this.deleteUploadedImage(uploadedImageId);
 
       if (error instanceof ImageStorageNotConfiguredError) {
@@ -71,16 +63,10 @@ export class ClubController {
         });
       }
 
-      const databaseError = this.getDatabaseError(error);
-      const rootCause = databaseError.cause;
+      const conflictResponse = createUniqueConstraintErrorResponse(error);
 
-      if (
-        (databaseError.code === "23505" && databaseError.constraint === "clubs_name_idx") ||
-        (rootCause?.code === "23505" && rootCause.constraint === "clubs_name_idx")
-      ) {
-        return response.status(409).json({
-          message: "A club with this name already exists.",
-        });
+      if (conflictResponse) {
+        return response.status(conflictResponse.status).json(conflictResponse.body);
       }
 
       return response.status(500).json({
@@ -179,16 +165,10 @@ export class ClubController {
         });
       }
 
-      const databaseError = this.getDatabaseError(error);
-      const rootCause = databaseError.cause;
+      const conflictResponse = createUniqueConstraintErrorResponse(error);
 
-      if (
-        (databaseError.code === "23505" && databaseError.constraint === "clubs_name_idx") ||
-        (rootCause?.code === "23505" && rootCause.constraint === "clubs_name_idx")
-      ) {
-        return response.status(409).json({
-          message: "A club with this name already exists.",
-        });
+      if (conflictResponse) {
+        return response.status(conflictResponse.status).json(conflictResponse.body);
       }
 
       return response.status(500).json({

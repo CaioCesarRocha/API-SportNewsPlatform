@@ -11,22 +11,13 @@ import {
   ImageStorageService,
   ImageUploadError,
 } from "../services/image-storage.service";
-
-type DatabaseError = {
-  code?: string;
-  constraint?: string;
-  cause?: DatabaseError;
-};
+import { createUniqueConstraintErrorResponse } from "../utils/database-error";
 
 export class ChampionshipController {
   constructor(
     private readonly championshipService: ChampionshipService,
     private readonly imageStorageService: ImageStorageService,
   ) {}
-
-  private getDatabaseError(error: unknown): DatabaseError {
-    return error as DatabaseError;
-  }
 
   private async deleteUploadedImage(fileId: string | null): Promise<void> {
     if (!fileId) {
@@ -81,17 +72,10 @@ export class ChampionshipController {
         });
       }
 
-      const databaseError = this.getDatabaseError(error);
-      const rootCause = databaseError.cause;
+      const conflictResponse = createUniqueConstraintErrorResponse(error);
 
-      if (
-        (databaseError.code === "23505" &&
-          databaseError.constraint === "championships_name_idx") ||
-        (rootCause?.code === "23505" && rootCause.constraint === "championships_name_idx")
-      ) {
-        return response.status(409).json({
-          message: "A championship with this name already exists.",
-        });
+      if (conflictResponse) {
+        return response.status(conflictResponse.status).json(conflictResponse.body);
       }
 
       return response.status(500).json({
@@ -223,17 +207,10 @@ export class ChampionshipController {
         });
       }
 
-      const databaseError = this.getDatabaseError(error);
-      const rootCause = databaseError.cause;
+      const conflictResponse = createUniqueConstraintErrorResponse(error);
 
-      if (
-        (databaseError.code === "23505" &&
-          databaseError.constraint === "championships_name_idx") ||
-        (rootCause?.code === "23505" && rootCause.constraint === "championships_name_idx")
-      ) {
-        return response.status(409).json({
-          message: "A championship with this name already exists.",
-        });
+      if (conflictResponse) {
+        return response.status(conflictResponse.status).json(conflictResponse.body);
       }
 
       return response.status(500).json({
