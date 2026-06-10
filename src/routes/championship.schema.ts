@@ -77,13 +77,26 @@ export const createChampionshipBodySchema = z
           error: (issue) =>
             issue.input === undefined
               ? "weight is required."
-              : "weight must be an integer between 1 and 7.",
+              : "weight must be an integer between 1 and 10.",
         })
-        .int("weight must be an integer between 1 and 7.")
-        .min(1, "weight must be an integer between 1 and 7.")
-        .max(7, "weight must be an integer between 1 and 7."),
+        .int("weight must be an integer between 1 and 10.")
+        .min(1, "weight must be an integer between 1 and 10.")
+        .max(10, "weight must be an integer between 1 and 10."),
     ),
     clubsCount: requiredPositiveInteger("clubsCount"),
+    relegation: z.preprocess(
+      emptyStringToUndefined,
+      z
+        .coerce.number({
+          error: (issue) =>
+            issue.input === undefined
+              ? "relegation is required."
+              : "relegation must be an integer between 0 and 8.",
+        })
+        .int("relegation must be an integer between 0 and 8.")
+        .min(0, "relegation must be an integer between 0 and 8.")
+        .max(8, "relegation must be an integer between 0 and 8."),
+    ),
     clubs: clubsSchema,
   })
   .refine((payload) => payload.clubs.length === payload.clubsCount, {
@@ -108,6 +121,18 @@ export const getAllChampionshipsQuerySchema = z.object({
   ),
 });
 
+const optionalRelegation = z.preprocess(
+  emptyStringToUndefined,
+  z
+    .coerce.number({
+      error: "relegation must be an integer between 0 and 8.",
+    })
+    .int("relegation must be an integer between 0 and 8.")
+    .min(0, "relegation must be an integer between 0 and 8.")
+    .max(8, "relegation must be an integer between 0 and 8.")
+    .optional(),
+);
+
 export const updateChampionshipBodySchema = z.object({
   name: requiredString("name"),
   weight: z.preprocess(
@@ -117,12 +142,13 @@ export const updateChampionshipBodySchema = z.object({
         error: (issue) =>
           issue.input === undefined
             ? "weight is required."
-            : "weight must be an integer between 1 and 7.",
+            : "weight must be an integer between 1 and 10.",
       })
-      .int("weight must be an integer between 1 and 7.")
-      .min(1, "weight must be an integer between 1 and 7.")
-      .max(7, "weight must be an integer between 1 and 7."),
+      .int("weight must be an integer between 1 and 10.")
+      .min(1, "weight must be an integer between 1 and 10.")
+      .max(10, "weight must be an integer between 1 and 10."),
   ),
+  relegation: optionalRelegation,
 });
 
 export const updateChampionshipParamsSchema = z.object({
