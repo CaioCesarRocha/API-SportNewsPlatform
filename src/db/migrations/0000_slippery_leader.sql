@@ -6,7 +6,7 @@ CREATE TABLE "championships" (
 	"weight" integer NOT NULL,
 	"emblem" text NOT NULL,
 	"clubs_count" integer NOT NULL,
-	CONSTRAINT "championships_weight_check" CHECK ("championships"."weight" between 1 and 7),
+	CONSTRAINT "championships_weight_check" CHECK ("championships"."weight" between 1 and 10),
 	CONSTRAINT "championships_clubs_count_check" CHECK ("championships"."clubs_count" > 0)
 );
 --> statement-breakpoint

@@ -32,6 +32,7 @@ export class ChampionshipController {
 
     try {
       const payload = request.body as Omit<CreateChampionshipPayload, "emblem">;
+
       const uploadedImage = await this.imageStorageService.uploadImage({
         file: request.file as Express.Multer.File,
         fileNamePrefix: payload.name,
@@ -47,6 +48,7 @@ export class ChampionshipController {
         weight: payload.weight,
         emblem: uploadedImage.url,
         clubsCount: payload.clubsCount,
+        relegation: payload.relegation,
         clubs: payload.clubs,
       });
 
@@ -181,6 +183,7 @@ export class ChampionshipController {
         name: payload.name,
         weight: payload.weight,
         emblem: emblemUrl,
+        relegation: payload.relegation,
       });
 
       if (!championship) {

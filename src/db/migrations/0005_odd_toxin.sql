@@ -1,0 +1,2 @@
+ALTER TABLE "championships" ADD COLUMN "relegation" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
+ALTER TABLE "championships" ADD CONSTRAINT "championships_relegation_check" CHECK ("championships"."relegation" between 0 and 8);
