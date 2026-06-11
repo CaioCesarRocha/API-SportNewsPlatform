@@ -86,6 +86,20 @@ export class ChampionshipController {
     }
   };
 
+  checkUniqueness = async (request: Request, response: Response): Promise<Response> => {
+    try {
+      const { name } = request.query as unknown as { name: string };
+
+      const nameTaken = await this.championshipService.isNameTaken(name);
+
+      return response.status(200).json({ nameTaken });
+    } catch {
+      return response.status(500).json({
+        message: "Failed to check championship uniqueness.",
+      });
+    }
+  };
+
   getAllChampionships = async (request: Request, response: Response): Promise<Response> => {
     const nameChampionship = typeof request.query.name === "string" ? request.query.name : undefined;
     

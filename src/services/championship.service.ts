@@ -1,4 +1,4 @@
-import { asc, eq, ilike, inArray, InferInsertModel, InferSelectModel, ne } from "drizzle-orm";
+import { asc, eq, ilike, inArray, InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 import { db } from "../db/index";
 import { championships, clubChampionships, clubTitles, clubs } from "../db/schema";
@@ -112,6 +112,16 @@ export class ChampionshipService {
       ...championshipData,
       clubs: clubLinks.map((clubLink) => this.serializeClub(clubLink.club)),
     };
+  }
+
+  async isNameTaken(name: string): Promise<boolean> {
+    const [championship] = await db
+      .select({ id: championships.id })
+      .from(championships)
+      .where(ilike(championships.name, name))
+      .limit(1);
+
+    return !!championship;
   }
 
   async updateChampionship(id: number, payload: UpdateChampionshipPayload): Promise<Championship | null> {
