@@ -49,6 +49,8 @@ export class ChampionshipController {
         emblem: uploadedImage.url,
         clubsCount: payload.clubsCount,
         relegation: payload.relegation,
+        qualifyOne: payload.qualifyOne,
+        qualifyTwo: payload.qualifyTwo,
         clubs: payload.clubs,
       });
 
@@ -198,6 +200,8 @@ export class ChampionshipController {
         weight: payload.weight,
         emblem: emblemUrl,
         relegation: payload.relegation,
+        qualifyOne: payload.qualifyOne,
+        qualifyTwo: payload.qualifyTwo,
       });
 
       if (!championship) {

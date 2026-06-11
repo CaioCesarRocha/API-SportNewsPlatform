@@ -29,12 +29,16 @@ export const championships = pgTable(
     emblem: text("emblem").notNull(),
     clubsCount: integer("clubs_count").notNull(),
     relegation: integer("relegation").notNull().default(0),
+    qualifyOne: integer("qualify_one").notNull().default(0),
+    qualifyTwo: integer("qualify_two").notNull().default(0),
   },
   (table) => [
     uniqueIndex("championships_name_idx").on(sql`lower(${table.name})`),
     check("championships_weight_check", sql`${table.weight} between 1 and 10`),
     check("championships_clubs_count_check", sql`${table.clubsCount} > 0`),
     check("championships_relegation_check", sql`${table.relegation} between 0 and 8`),
+    check("championships_qualify_one_check", sql`${table.qualifyOne} between 0 and 10`),
+    check("championships_qualify_two_check", sql`${table.qualifyTwo} between 0 and 10`),
   ],
 );
 

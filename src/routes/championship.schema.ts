@@ -97,6 +97,32 @@ export const createChampionshipBodySchema = z
         .min(0, "relegation must be an integer between 0 and 8.")
         .max(8, "relegation must be an integer between 0 and 8."),
     ),
+    qualifyOne: z.preprocess(
+      emptyStringToUndefined,
+      z
+        .coerce.number({
+          error: (issue) =>
+            issue.input === undefined
+              ? "qualifyOne is required."
+              : "qualifyOne must be an integer between 0 and 10.",
+        })
+        .int("qualifyOne must be an integer between 0 and 10.")
+        .min(0, "qualifyOne must be an integer between 0 and 10.")
+        .max(10, "qualifyOne must be an integer between 0 and 10."),
+    ),
+    qualifyTwo: z.preprocess(
+      emptyStringToUndefined,
+      z
+        .coerce.number({
+          error: (issue) =>
+            issue.input === undefined
+              ? "qualifyTwo is required."
+              : "qualifyTwo must be an integer between 0 and 10.",
+        })
+        .int("qualifyTwo must be an integer between 0 and 10.")
+        .min(0, "qualifyTwo must be an integer between 0 and 10.")
+        .max(10, "qualifyTwo must be an integer between 0 and 10."),
+    ),
     clubs: clubsSchema,
   })
   .refine((payload) => payload.clubs.length === payload.clubsCount, {
@@ -133,6 +159,19 @@ const optionalRelegation = z.preprocess(
     .optional(),
 );
 
+const optionalQualify = (fieldName: string) =>
+  z.preprocess(
+    emptyStringToUndefined,
+    z
+      .coerce.number({
+        error: `${fieldName} must be an integer between 0 and 10.`,
+      })
+      .int(`${fieldName} must be an integer between 0 and 10.`)
+      .min(0, `${fieldName} must be an integer between 0 and 10.`)
+      .max(10, `${fieldName} must be an integer between 0 and 10.`)
+      .optional(),
+  );
+
 export const updateChampionshipBodySchema = z.object({
   name: requiredString("name"),
   weight: z.preprocess(
@@ -149,6 +188,8 @@ export const updateChampionshipBodySchema = z.object({
       .max(10, "weight must be an integer between 1 and 10."),
   ),
   relegation: optionalRelegation,
+  qualifyOne: optionalQualify("qualifyOne"),
+  qualifyTwo: optionalQualify("qualifyTwo"),
 });
 
 export const updateChampionshipParamsSchema = z.object({
