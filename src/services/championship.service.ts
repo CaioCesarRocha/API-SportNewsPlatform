@@ -7,7 +7,7 @@ export type ChampionshipType = "elimination rounds" | "league" | "mixed" | "grou
 
 export type CreateChampionshipPayload = Pick<
   InferInsertModel<typeof championships>,
-  "name" | "type" | "weight" | "emblem" | "clubsCount" | "relegation"
+  "name" | "type" | "weight" | "emblem" | "clubsCount" | "relegation" | "qualifyOne" | "qualifyTwo"
 > & {
   clubs: string[];
 };
@@ -26,7 +26,7 @@ export type ListChampionshipsParams = {
 
 export type UpdateChampionshipPayload = Pick<
   InferInsertModel<typeof championships>,
-  "name" | "weight" | "emblem" | "relegation"
+  "name" | "weight" | "emblem" | "relegation" | "qualifyOne" | "qualifyTwo"
 >;
 
 export class InvalidChampionshipClubsError extends Error {
@@ -69,6 +69,8 @@ export class ChampionshipService {
           emblem: payload.emblem,
           clubsCount: payload.clubsCount,
           relegation: payload.relegation,
+          qualifyOne: payload.qualifyOne,
+          qualifyTwo: payload.qualifyTwo,
         })
         .returning();
 
@@ -132,6 +134,8 @@ export class ChampionshipService {
         weight: payload.weight,
         emblem: payload.emblem,
         relegation: payload.relegation,
+        qualifyOne: payload.qualifyOne,
+        qualifyTwo: payload.qualifyTwo,
       })
       .where(eq(championships.id, id))
       .returning();
