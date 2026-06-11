@@ -31,3 +31,8 @@ export const getClubsByLocationParamsSchema = z.object({
 export const updateClubParamsSchema = z.object({
   id: requiredString("id route param"),
 });
+
+export const checkClubUniquenessQuerySchema = z.object({
+  name: z.string().trim().min(1, "name must not be empty.").optional(),
+  slug: z.string().trim().min(1, "slug must not be empty.").optional(),
+});

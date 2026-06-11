@@ -5,6 +5,7 @@ import { requireUploadedFile, uploadImageField } from "../middlewares/upload-ima
 import { validateRequest } from "../middlewares/validate-request";
 import { ImageStorageService } from "../services/image-storage.service";
 import {
+  checkChampionshipUniquenessQuerySchema,
   createChampionshipBodySchema,
   finishChampionshipBodySchema,
   getAllChampionshipsQuerySchema,
@@ -34,6 +35,12 @@ router.post(
   requireUploadedFile("emblem"),
   validateRequest({ body: createChampionshipBodySchema }),
   championshipController.createChampionship,
+);
+
+router.get(
+  "/check-uniqueness",
+  validateRequest({ query: checkChampionshipUniquenessQuerySchema }),
+  championshipController.checkUniqueness,
 );
 
 router.put(

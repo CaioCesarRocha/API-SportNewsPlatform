@@ -218,6 +218,48 @@ export const swaggerSpec: OpenAPIV3.Document = {
         },
       },
     },
+    "/clubs/check-uniqueness": {
+      get: {
+        summary: "Verifica se nome e/ou slug de um clube já estão em uso",
+        tags: ["Clubs"],
+        parameters: [
+          {
+            in: "query",
+            name: "name",
+            required: false,
+            schema: { type: "string" },
+            description: "Nome do clube para verificar",
+            example: "Sociedade Esportiva Palmeiras",
+          },
+          {
+            in: "query",
+            name: "slug",
+            required: false,
+            schema: { type: "string" },
+            description: "Slug do clube para verificar",
+            example: "sociedade-esportiva-palmeiras",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Resultado das verificações",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    nameTaken: { type: "boolean", example: false },
+                    slugTaken: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Erro de validação" },
+          "500": { description: "Erro interno do servidor" },
+        },
+      },
+    },
     "/championships/finish": {
       post: {
         summary: "Finaliza um campeonato definindo o clube campeão",
@@ -358,6 +400,39 @@ export const swaggerSpec: OpenAPIV3.Document = {
               },
             },
           },
+          "500": { description: "Erro interno do servidor" },
+        },
+      },
+    },
+    "/championships/check-uniqueness": {
+      get: {
+        summary: "Verifica se o nome de um campeonato já está em uso",
+        tags: ["Championships"],
+        parameters: [
+          {
+            in: "query",
+            name: "name",
+            required: true,
+            schema: { type: "string" },
+            description: "Nome do campeonato para verificar",
+            example: "Campeonato Brasileiro Série A",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Resultado da verificação",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    nameTaken: { type: "boolean", example: false },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Erro de validação" },
           "500": { description: "Erro interno do servidor" },
         },
       },

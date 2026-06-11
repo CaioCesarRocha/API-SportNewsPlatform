@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { and, asc, eq, ilike, InferInsertModel, InferSelectModel, ne } from "drizzle-orm";
+import { and, asc, eq, ilike, InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 import { db } from "../db/index";
 import { clubs } from "../db/schema";
@@ -109,6 +109,26 @@ export class ClubService {
     }
 
     return this.serializeClub(club);
+  }
+
+  async checkNameTaken(name: string): Promise<boolean> {
+    const [club] = await db
+      .select({ id: clubs.id })
+      .from(clubs)
+      .where(ilike(clubs.name, name))
+      .limit(1);
+
+    return !!club;
+  }
+
+  async checkSlugTaken(slug: string): Promise<boolean> {
+    const [club] = await db
+      .select({ id: clubs.id })
+      .from(clubs)
+      .where(eq(clubs.slug, slug))
+      .limit(1);
+
+    return !!club;
   }
 
   async updateClub(publicId: string, payload: CreateClubPayload): Promise<ClubResponse | null> {

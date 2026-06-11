@@ -5,6 +5,7 @@ import { requireUploadedFile, uploadImageField } from "../middlewares/upload-ima
 import { validateRequest } from "../middlewares/validate-request";
 import { ImageStorageService } from "../services/image-storage.service";
 import {
+  checkClubUniquenessQuerySchema,
   createClubBodySchema,
   getClubsByLocationParamsSchema,
   updateClubParamsSchema,
@@ -37,5 +38,11 @@ router.get(
   clubController.getClubsByLocation,
 );
 router.get("/", clubController.getAllClubs);
+
+router.get(
+  "/check-uniqueness",
+  validateRequest({ query: checkClubUniquenessQuerySchema }),
+  clubController.checkUniqueness,
+);
 
 export default router;

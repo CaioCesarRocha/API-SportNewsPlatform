@@ -75,6 +75,26 @@ export class ClubController {
     }
   };
 
+  checkUniqueness = async (request: Request, response: Response): Promise<Response> => {
+    try {
+      const { name, slug } = request.query as unknown as {
+        name?: string;
+        slug?: string;
+      };
+
+      const [nameTaken, slugTaken] = await Promise.all([
+        name ? this.clubService.checkNameTaken(name) : Promise.resolve(false),
+        slug ? this.clubService.checkSlugTaken(slug) : Promise.resolve(false),
+      ]);
+
+      return response.status(200).json({ nameTaken, slugTaken });
+    } catch {
+      return response.status(500).json({
+        message: "Failed to check club uniqueness.",
+      });
+    }
+  };
+
   getAllClubs = async (_request: Request, response: Response): Promise<Response> => {
     try {
       const clubs = await this.clubService.getAllClubs();
