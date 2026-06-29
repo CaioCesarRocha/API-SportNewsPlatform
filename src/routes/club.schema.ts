@@ -36,3 +36,7 @@ export const checkClubUniquenessQuerySchema = z.object({
   name: z.string().trim().min(1, "name must not be empty.").optional(),
   slug: z.string().trim().min(1, "slug must not be empty.").optional(),
 });
+
+export const clubPerformanceQuerySchema = z.object({
+  sortBy: z.enum(["victory", "pontuation", "performance"]).optional(),
+});
