@@ -121,6 +121,20 @@ export class ClubController {
     }
   };
 
+  getPerformance = async (request: Request, response: Response): Promise<Response> => {
+    try {
+      const { sortBy } = request.query as { sortBy?: "victory" | "pontuation" | "performance" };
+
+      const result = await this.clubService.getClubPerformance(sortBy);
+
+      return response.status(200).json(result);
+    } catch {
+      return response.status(500).json({
+        message: "Failed to get club performance.",
+      });
+    }
+  };
+
   updateClub = async (request: Request, response: Response): Promise<Response> => {
     let uploadedImageId: string | null = null;
 

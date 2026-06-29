@@ -218,6 +218,36 @@ export const swaggerSpec: OpenAPIV3.Document = {
         },
       },
     },
+    "/clubs/performance": {
+      get: {
+        summary: "Lista desempenho de todos os clubes (vitórias, empates, derrotas, pontuação, aproveitamento)",
+        tags: ["Clubs"],
+        parameters: [
+          {
+            in: "query",
+            name: "sortBy",
+            required: false,
+            schema: { type: "string", enum: ["victory", "pontuation", "performance"] },
+            description: "Critério de ordenação: victory (mais vitórias), pontuation (maior pontuação), performance (maior aproveitamento)",
+            example: "victory",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Lista de desempenho dos clubes",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/ClubPerformance" },
+                },
+              },
+            },
+          },
+          "500": { description: "Erro interno do servidor" },
+        },
+      },
+    },
     "/clubs/check-uniqueness": {
       get: {
         summary: "Verifica se nome e/ou slug de um clube já estão em uso",
@@ -856,6 +886,35 @@ export const swaggerSpec: OpenAPIV3.Document = {
               stadium: "Allianz Parque",
             },
           ],
+        },
+      },
+      ClubPerformance: {
+        type: "object",
+        properties: {
+          club: { $ref: "#/components/schemas/ClubResponse" },
+          games: { type: "integer", description: "Quantidade de jogos disputados" },
+          victories: { type: "integer", description: "Quantidade de vitórias" },
+          draws: { type: "integer", description: "Quantidade de empates" },
+          defeats: { type: "integer", description: "Quantidade de derrotas" },
+          pontuation: { type: "integer", description: "Pontuação total (vitória=3, empate=1)" },
+          performance: { type: "number", format: "float", description: "Aproveitamento (pontos / (jogos * 3))" },
+        },
+        example: {
+          club: {
+            id: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
+            name: "Sociedade Esportiva Palmeiras",
+            slug: "sociedade-esportiva-palmeiras",
+            country: "Brasil",
+            state: "São Paulo",
+            shield: "https://ik.imagekit.io/sportnews/clubs/shields/palmeiras.jpg",
+            stadium: "Allianz Parque",
+          },
+          games: 18,
+          victories: 10,
+          draws: 5,
+          defeats: 3,
+          pontuation: 35,
+          performance: 0.6481,
         },
       },
       RoundClub: {

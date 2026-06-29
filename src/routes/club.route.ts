@@ -6,6 +6,7 @@ import { validateRequest } from "../middlewares/validate-request";
 import { ImageStorageService } from "../services/image-storage.service";
 import {
   checkClubUniquenessQuerySchema,
+  clubPerformanceQuerySchema,
   createClubBodySchema,
   getClubsByLocationParamsSchema,
   updateClubParamsSchema,
@@ -38,6 +39,12 @@ router.get(
   clubController.getClubsByLocation,
 );
 router.get("/", clubController.getAllClubs);
+
+router.get(
+  "/performance",
+  validateRequest({ query: clubPerformanceQuerySchema }),
+  clubController.getPerformance,
+);
 
 router.get(
   "/check-uniqueness",
