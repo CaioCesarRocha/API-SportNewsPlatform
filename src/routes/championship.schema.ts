@@ -145,6 +145,9 @@ export const getAllChampionshipsQuerySchema = z.object({
       .min(1, "name is required.")
       .optional(),
   ),
+  type: z.enum(championshipTypes, {
+    error: "type must be one of: elimination rounds, league, mixed, groups.",
+  }).optional(),
 });
 
 const optionalRelegation = z.preprocess(

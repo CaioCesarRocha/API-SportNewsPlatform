@@ -1,4 +1,4 @@
-import { asc, eq, ilike, inArray, InferInsertModel, InferSelectModel } from "drizzle-orm";
+import { and, asc, eq, ilike, inArray, InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 import { db } from "../db/index";
 import { championships, clubChampionships, clubTitles, clubs } from "../db/schema";
@@ -22,6 +22,7 @@ export type ChampionshipWithClubs = Championship & {
 
 export type ListChampionshipsParams = {
   name?: string;
+  type?: ChampionshipType;
 };
 
 export type UpdateChampionshipPayload = Pick<
@@ -86,8 +87,18 @@ export class ChampionshipService {
   }
 
   async getAllChampionships(params?: ListChampionshipsParams): Promise<Championship[]> {
+    const conditions: ReturnType<typeof eq>[] = [];
+
+    if (params?.name) {
+      conditions.push(ilike(championships.name, `%${params.name}%`));
+    }
+
+    if (params?.type) {
+      conditions.push(eq(championships.type, params.type));
+    }
+
     return db.query.championships.findMany({
-      where: params?.name ? ilike(championships.name, `%${params.name}%`) : undefined,
+      where: conditions.length > 0 ? and(...conditions) : undefined,
       orderBy: [asc(championships.name)],
     });
   }
