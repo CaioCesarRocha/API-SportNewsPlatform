@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 
 import {
+  ChampionshipType,
   InvalidChampionshipClubsError,
   ChampionshipService,
   CreateChampionshipPayload,
@@ -104,10 +105,14 @@ export class ChampionshipController {
 
   getAllChampionships = async (request: Request, response: Response): Promise<Response> => {
     const nameChampionship = typeof request.query.name === "string" ? request.query.name : undefined;
-    
+    const typeChampionship = typeof request.query.type === "string"
+      ? (request.query.type as ChampionshipType)
+      : undefined;
+
     try {
       const championships = await this.championshipService.getAllChampionships({
         name: nameChampionship,
+        type: typeChampionship,
       });
 
       return response.status(200).json(championships);

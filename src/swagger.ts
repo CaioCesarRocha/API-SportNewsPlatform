@@ -417,6 +417,14 @@ export const swaggerSpec: OpenAPIV3.Document = {
             description: "Filtro por nome do campeonato (busca parcial)",
             example: "Brasileiro",
           },
+          {
+            in: "query",
+            name: "type",
+            required: false,
+            schema: { type: "string", enum: ["elimination rounds", "league", "mixed", "groups"] },
+            description: "Filtro por tipo do campeonato",
+            example: "league",
+          },
         ],
         responses: {
           "200": {
