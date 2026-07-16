@@ -186,8 +186,10 @@ export class ClubService {
       if (!club) continue;
 
       const totalGames = stats.victories + stats.draws + stats.defeats;
+      if (totalGames === 0) continue;
+
       const pontuation = stats.victories * 3 + stats.draws;
-      const performance = totalGames > 0 ? pontuation / (totalGames * 3) : 0;
+      const performance = pontuation / (totalGames * 3);
 
       result.push({
         club: this.serializeClub(club),
