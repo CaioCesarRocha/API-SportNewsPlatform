@@ -204,6 +204,11 @@ export const finishChampionshipBodySchema = z.object({
   clubId: requiredString("clubId"),
 });
 
+export const relegateChampionshipBodySchema = z.object({
+  championshipId: requiredPositiveInteger("championshipId"),
+  clubId: requiredString("clubId"),
+});
+
 export const checkChampionshipUniquenessQuerySchema = z.object({
   name: z.string().trim().min(1, "name is required."),
 });

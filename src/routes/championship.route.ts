@@ -10,6 +10,7 @@ import {
   finishChampionshipBodySchema,
   getAllChampionshipsQuerySchema,
   getChampionshipByIdParamsSchema,
+  relegateChampionshipBodySchema,
   updateChampionshipBodySchema,
   updateChampionshipParamsSchema,
 } from "./championship.schema";
@@ -27,6 +28,12 @@ router.post(
   "/finish",
   validateRequest({ body: finishChampionshipBodySchema }),
   championshipController.finishChampionship,
+);
+
+router.post(
+  "/relegate",
+  validateRequest({ body: relegateChampionshipBodySchema }),
+  championshipController.relegateChampionship,
 );
 
 router.post(
