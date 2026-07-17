@@ -1,7 +1,7 @@
 import { and, asc, eq, ilike, inArray, InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 import { db } from "../db/index";
-import { championships, clubChampionships, clubTitles, clubs } from "../db/schema";
+import { championships, clubChampionships, clubRelegations, clubTitles, clubs } from "../db/schema";
 
 export type ChampionshipType = "elimination rounds" | "league" | "mixed" | "groups";
 
@@ -172,6 +172,26 @@ export class ChampionshipService {
         .where(eq(clubTitles.championshipId, championshipId));
     } else {
       await db.insert(clubTitles).values({
+        clubId: clubPublicId,
+        championshipId,
+      });
+    }
+  }
+
+  async relegateChampionship(championshipId: number, clubPublicId: string): Promise<void> {
+    const [existing] = await db
+      .select()
+      .from(clubRelegations)
+      .where(
+        and(
+          eq(clubRelegations.championshipId, championshipId),
+          eq(clubRelegations.clubId, clubPublicId),
+        ),
+      )
+      .limit(1);
+
+    if (!existing) {
+      await db.insert(clubRelegations).values({
         clubId: clubPublicId,
         championshipId,
       });

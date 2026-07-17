@@ -339,6 +339,54 @@ export const swaggerSpec: OpenAPIV3.Document = {
         },
       },
     },
+    "/championships/relegate": {
+      post: {
+        summary: "Rebaixa um clube em um campeonato",
+        tags: ["Championships"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["championshipId", "clubId"],
+                properties: {
+                  championshipId: {
+                    type: "integer",
+                    minimum: 1,
+                    description: "ID do campeonato",
+                    example: 1,
+                  },
+                  clubId: {
+                    type: "string",
+                    description: "Public ID do clube rebaixado",
+                    example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Clube rebaixado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Championship relegated successfully." },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Erro de validação" },
+          "404": { description: "Campeonato não encontrado" },
+          "500": { description: "Erro interno do servidor" },
+        },
+      },
+    },
     "/championships": {
       post: {
         summary: "Cria um novo campeonato",
@@ -819,6 +867,10 @@ export const swaggerSpec: OpenAPIV3.Document = {
                 type: "array",
                 items: { $ref: "#/components/schemas/ClubTitle" },
               },
+              relegations: {
+                type: "array",
+                items: { $ref: "#/components/schemas/ClubRelegation" },
+              },
             },
           },
         ],
@@ -842,6 +894,34 @@ export const swaggerSpec: OpenAPIV3.Document = {
               },
             },
           ],
+          relegations: [
+            {
+              championship: {
+                id: 2,
+                name: "Campeonato Brasileiro Série B",
+                type: "league",
+                weight: 5,
+                emblem: "https://ik.imagekit.io/sportnews/championships/emblems/brasileirao-b.jpg",
+                clubsCount: 20,
+              },
+            },
+          ],
+        },
+      },
+      ClubRelegation: {
+        type: "object",
+        properties: {
+          championship: {
+            type: "object",
+            properties: {
+              id: { type: "integer" },
+              name: { type: "string" },
+              type: { type: "string", enum: ["elimination rounds", "league", "mixed", "groups"] },
+              weight: { type: "integer" },
+              emblem: { type: "string" },
+              clubsCount: { type: "integer" },
+            },
+          },
         },
       },
       Championship: {

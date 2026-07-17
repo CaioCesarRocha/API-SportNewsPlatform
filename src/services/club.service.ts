@@ -26,8 +26,20 @@ export type ClubTitle = {
   };
 };
 
+export type ClubRelegation = {
+  championship: {
+    id: number;
+    name: string;
+    type: "elimination rounds" | "league" | "mixed" | "groups";
+    weight: number;
+    emblem: string;
+    clubsCount: number;
+  };
+};
+
 export type ClubWithTitles = ClubResponse & {
   titles: ClubTitle[];
+  relegations: ClubRelegation[];
 };
 
 export type ClubPerformance = {
@@ -59,11 +71,17 @@ export class ClubService {
     titleLinks: {
       championship: ClubTitle["championship"];
     }[],
+    relegationLinks: {
+      championship: ClubRelegation["championship"];
+    }[],
   ): ClubWithTitles {
     return {
       ...this.serializeClub(club),
       titles: titleLinks.map((titleLink) => ({
         championship: titleLink.championship,
+      })),
+      relegations: relegationLinks.map((relegationLink) => ({
+        championship: relegationLink.championship,
       })),
     };
   }
@@ -93,11 +111,18 @@ export class ClubService {
             championship: true,
           },
         },
+        relegationLinks: {
+          with: {
+            championship: true,
+          },
+        },
       },
       orderBy: [asc(clubs.name)],
     });
 
-    return result.map(({ titleLinks, ...club }) => this.serializeClubWithTitles(club, titleLinks));
+    return result.map(({ titleLinks, relegationLinks, ...club }) =>
+      this.serializeClubWithTitles(club, titleLinks, relegationLinks),
+    );
   }
 
   async getClubsByLocation(country: string, state: string): Promise<ClubResponse[]> {
