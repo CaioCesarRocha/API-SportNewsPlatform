@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
   check,
+  index,
   integer,
   pgEnum,
   pgTable,
@@ -90,6 +91,22 @@ export const clubTitles = pgTable(
   ],
 );
 
+export const clubRelegations = pgTable(
+  "club_relegations",
+  {
+    id: serial("id").primaryKey(),
+    clubId: varchar("club_id", { length: 32 })
+      .notNull()
+      .references(() => clubs.publicId, { onDelete: "cascade" }),
+    championshipId: integer("championship_id")
+      .notNull()
+      .references(() => championships.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    index("club_relegations_club_championship_idx").on(table.clubId, table.championshipId),
+  ],
+);
+
 export const rounds = pgTable(
   "rounds",
   {
@@ -125,6 +142,7 @@ export const championshipsRelations = relations(championships, ({ many }) => ({
 export const clubsRelations = relations(clubs, ({ many }) => ({
   championshipLinks: many(clubChampionships),
   titleLinks: many(clubTitles),
+  relegationLinks: many(clubRelegations),
   homeRounds: many(rounds, { relationName: "homeTeam" }),
   visitRounds: many(rounds, { relationName: "visitTeam" }),
 }));
@@ -150,6 +168,17 @@ export const clubTitlesRelations = relations(clubTitles, ({ one }) => ({
   }),
   championship: one(championships, {
     fields: [clubTitles.championshipId],
+    references: [championships.id],
+  }),
+}));
+
+export const clubRelegationsRelations = relations(clubRelegations, ({ one }) => ({
+  club: one(clubs, {
+    fields: [clubRelegations.clubId],
+    references: [clubs.publicId],
+  }),
+  championship: one(championships, {
+    fields: [clubRelegations.championshipId],
     references: [championships.id],
   }),
 }));
