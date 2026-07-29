@@ -123,7 +123,7 @@ export class ClubController {
 
   getPerformance = async (request: Request, response: Response): Promise<Response> => {
     try {
-      const { sortBy } = request.query as { sortBy?: "victory" | "pontuation" | "performance" };
+      const { sortBy } = request.query as { sortBy?: "victory" | "pontuation" | "performance" | "goalsPro" | "goalsDown" | "goalDiff" };
 
       const result = await this.clubService.getClubPerformance(sortBy);
 
