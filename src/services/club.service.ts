@@ -50,6 +50,9 @@ export type ClubPerformance = {
   defeats: number;
   pontuation: number;
   performance: number;
+  goalsPro: number;
+  goalsDown: number;
+  goalDiff: number;
 };
 
 export class ClubService {
@@ -167,7 +170,7 @@ export class ClubService {
   }
 
   async getClubPerformance(
-    sortBy?: "victory" | "pontuation" | "performance",
+    sortBy?: "victory" | "pontuation" | "performance" | "goalsPro" | "goalsDown" | "goalDiff",
   ): Promise<ClubPerformance[]> {
     const allClubs = await db.select().from(clubs);
     const allRounds = await db.select().from(rounds);
@@ -179,11 +182,11 @@ export class ClubService {
 
     const statsMap = new Map<
       number,
-      { victories: number; draws: number; defeats: number }
+      { victories: number; draws: number; defeats: number; goalsPro: number; goalsDown: number }
     >();
 
     for (const club of allClubs) {
-      statsMap.set(club.id, { victories: 0, draws: 0, defeats: 0 });
+      statsMap.set(club.id, { victories: 0, draws: 0, defeats: 0, goalsPro: 0, goalsDown: 0 });
     }
 
     for (const round of allRounds) {
@@ -191,6 +194,11 @@ export class ClubService {
       const visit = statsMap.get(round.visitTeamId);
 
       if (home && visit) {
+        home.goalsPro += round.homeGoals;
+        home.goalsDown += round.visitGoals;
+        visit.goalsPro += round.visitGoals;
+        visit.goalsDown += round.homeGoals;
+
         if (round.homeGoals > round.visitGoals) {
           home.victories += 1;
           visit.defeats += 1;
@@ -216,6 +224,10 @@ export class ClubService {
       const pontuation = stats.victories * 3 + stats.draws;
       const performance = pontuation / (totalGames * 3);
 
+      const goalsDown = stats.goalsDown;
+      const goalsPro = stats.goalsPro;
+      const goalDiff = goalsPro - goalsDown;
+
       result.push({
         club: this.serializeClub(club),
         games: totalGames,
@@ -224,6 +236,9 @@ export class ClubService {
         defeats: stats.defeats,
         pontuation,
         performance: Math.round(performance * 10000) / 10000,
+        goalsPro,
+        goalsDown,
+        goalDiff,
       });
     }
 
@@ -233,6 +248,12 @@ export class ClubService {
       result.sort((a, b) => b.pontuation - a.pontuation);
     } else if (sortBy === "performance") {
       result.sort((a, b) => b.performance - a.performance);
+    } else if (sortBy === "goalsPro") {
+      result.sort((a, b) => b.goalsPro - a.goalsPro);
+    } else if (sortBy === "goalsDown") {
+      result.sort((a, b) => b.goalsDown - a.goalsDown);
+    } else if (sortBy === "goalDiff") {
+      result.sort((a, b) => b.goalDiff - a.goalDiff);
     }
 
     return result;

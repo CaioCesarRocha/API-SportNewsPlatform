@@ -227,8 +227,8 @@ export const swaggerSpec: OpenAPIV3.Document = {
             in: "query",
             name: "sortBy",
             required: false,
-            schema: { type: "string", enum: ["victory", "pontuation", "performance"] },
-            description: "Critério de ordenação: victory (mais vitórias), pontuation (maior pontuação), performance (maior aproveitamento)",
+            schema: { type: "string", enum: ["victory", "pontuation", "performance", "goalsPro", "goalsDown", "goalDiff"] },
+            description: "Critério de ordenação: victory (mais vitórias), pontuation (maior pontuação), performance (maior aproveitamento), goalsPro (mais gols marcados), goalsDown (mais gols sofridos), goalDiff (melhor saldo de gols)",
             example: "victory",
           },
         ],
@@ -986,6 +986,9 @@ export const swaggerSpec: OpenAPIV3.Document = {
           defeats: { type: "integer", description: "Quantidade de derrotas" },
           pontuation: { type: "integer", description: "Pontuação total (vitória=3, empate=1)" },
           performance: { type: "number", format: "float", description: "Aproveitamento (pontos / (jogos * 3))" },
+          goalsPro: { type: "integer", description: "Gols marcados pelo clube" },
+          goalsDown: { type: "integer", description: "Gols sofridos pelo clube" },
+          goalDiff: { type: "integer", description: "Saldo de gols (goalsPro - goalsDown)" },
         },
         example: {
           club: {
@@ -1003,6 +1006,9 @@ export const swaggerSpec: OpenAPIV3.Document = {
           defeats: 3,
           pontuation: 35,
           performance: 0.6481,
+          goalsPro: 32,
+          goalsDown: 14,
+          goalDiff: 18,
         },
       },
       RoundClub: {

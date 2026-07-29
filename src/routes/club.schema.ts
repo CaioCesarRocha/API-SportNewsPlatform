@@ -38,5 +38,5 @@ export const checkClubUniquenessQuerySchema = z.object({
 });
 
 export const clubPerformanceQuerySchema = z.object({
-  sortBy: z.enum(["victory", "pontuation", "performance"]).optional(),
+  sortBy: z.enum(["victory", "pontuation", "performance", "goalsPro", "goalsDown", "goalDiff"]).optional(),
 });
