@@ -57,6 +57,7 @@ export class ChampionshipController {
 
       return response.status(201).json(championship);
     } catch (error) {
+      console.log(">>> error: ", error);
       await this.deleteUploadedImage(uploadedImageId);
 
       if (error instanceof ImageStorageNotConfiguredError) {

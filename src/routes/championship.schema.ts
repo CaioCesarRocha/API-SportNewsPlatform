@@ -104,11 +104,11 @@ export const createChampionshipBodySchema = z
           error: (issue) =>
             issue.input === undefined
               ? "qualifyOne is required."
-              : "qualifyOne must be an integer between 0 and 10.",
+              : "qualifyOne must be an integer between 0 and 64.",
         })
-        .int("qualifyOne must be an integer between 0 and 10.")
-        .min(0, "qualifyOne must be an integer between 0 and 10.")
-        .max(10, "qualifyOne must be an integer between 0 and 10."),
+        .int("qualifyOne must be an integer between 0 and 64.")
+        .min(0, "qualifyOne must be an integer between 0 and 64.")
+        .max(64, "qualifyOne must be an integer between 0 and 64."),
     ),
     qualifyTwo: z.preprocess(
       emptyStringToUndefined,
@@ -117,11 +117,11 @@ export const createChampionshipBodySchema = z
           error: (issue) =>
             issue.input === undefined
               ? "qualifyTwo is required."
-              : "qualifyTwo must be an integer between 0 and 10.",
+              : "qualifyTwo must be an integer between 0 and 64.",
         })
-        .int("qualifyTwo must be an integer between 0 and 10.")
-        .min(0, "qualifyTwo must be an integer between 0 and 10.")
-        .max(10, "qualifyTwo must be an integer between 0 and 10."),
+        .int("qualifyTwo must be an integer between 0 and 64.")
+        .min(0, "qualifyTwo must be an integer between 0 and 64.")
+        .max(64, "qualifyTwo must be an integer between 0 and 64."),
     ),
     clubs: clubsSchema,
   })
@@ -167,11 +167,11 @@ const optionalQualify = (fieldName: string) =>
     emptyStringToUndefined,
     z
       .coerce.number({
-        error: `${fieldName} must be an integer between 0 and 10.`,
+        error: `${fieldName} must be an integer between 0 and 64.`,
       })
-      .int(`${fieldName} must be an integer between 0 and 10.`)
-      .min(0, `${fieldName} must be an integer between 0 and 10.`)
-      .max(10, `${fieldName} must be an integer between 0 and 10.`)
+      .int(`${fieldName} must be an integer between 0 and 64.`)
+      .min(0, `${fieldName} must be an integer between 0 and 64.`)
+      .max(64, `${fieldName} must be an integer between 0 and 64.`)
       .optional(),
   );
 
