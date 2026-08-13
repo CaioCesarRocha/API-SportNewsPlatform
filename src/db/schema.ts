@@ -38,8 +38,8 @@ export const championships = pgTable(
     check("championships_weight_check", sql`${table.weight} between 1 and 10`),
     check("championships_clubs_count_check", sql`${table.clubsCount} > 0`),
     check("championships_relegation_check", sql`${table.relegation} between 0 and 8`),
-    check("championships_qualify_one_check", sql`${table.qualifyOne} between 0 and 10`),
-    check("championships_qualify_two_check", sql`${table.qualifyTwo} between 0 and 10`),
+    check("championships_qualify_one_check", sql`${table.qualifyOne} between 0 and 64`),
+    check("championships_qualify_two_check", sql`${table.qualifyTwo} between 0 and 64`),
   ],
 );
 
